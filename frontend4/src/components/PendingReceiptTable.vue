@@ -47,7 +47,7 @@
                 <v-card-text>
                   Are you sure you want to update borrow status to returned?
                   <div>
-                    <strong>Student Name:</strong> {{ editedItem.student_name }}
+                    <strong>Student Names:</strong> {{ editedItem.student_name }}
                   </div>
                   <div>
                     <strong>Student LRN:</strong> {{ editedItem.student_lrn }}

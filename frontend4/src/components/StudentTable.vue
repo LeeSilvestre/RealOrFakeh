@@ -125,7 +125,7 @@
                 Are you sure you want to update this book information?
                 <div>
                   <strong>Title:</strong> {{ editedItem.book_title }}
-                </div>
+                </div>  
                 <div>
                   <strong>Author:</strong> {{ editedItem.book_auth }}
                 </div>
