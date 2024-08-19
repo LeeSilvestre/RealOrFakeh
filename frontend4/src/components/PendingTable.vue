@@ -328,6 +328,8 @@ console.log(this.data);
         book_title: this.editedItem.book_title.trim() === '',
         student_id: this.editedItem.student_id.trim() === '',
         access_no: this.editedItem.access_no.trim() === '',
+        categ_name: this.editedItem.access_no.trim() === '',
+        return_duedate: this.editedItem.access_no.trim() === '',
       };
       if (this.isFormValid()) {
         this.dialogConfirmation = true;

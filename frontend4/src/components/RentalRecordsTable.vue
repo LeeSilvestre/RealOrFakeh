@@ -224,7 +224,7 @@
           <!-- View Record Dialog -->
           <v-dialog v-model="dialogRecord" max-width="1500px" persistent>
             <v-card class="rounded-card">
-              <v-card-title class="text-h5">View Borrow Record</v-card-title>
+              <v-card-title class="text-h5">View Rental Record</v-card-title>
               <v-card-text class="privacy-content">
                 <v-container>
                   <v-row>

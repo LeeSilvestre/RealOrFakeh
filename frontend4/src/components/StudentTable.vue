@@ -210,7 +210,7 @@ export default {
         { title: 'AUTHOR', key: 'book_auth' },
         { title: 'CATEGORY', key: 'categ_name' },
         { title: 'PUB. DATE', key: 'pub_date' },
-        { title: 'C/O', key: 'copyright_owner' },
+        { title: 'COPYRIGHT OWNER', key: 'copyright_owner' },
         { title: 'NO. OF COPIES', key: 'book_qty' },
         { title: 'Actions', sortable: false },
       ],

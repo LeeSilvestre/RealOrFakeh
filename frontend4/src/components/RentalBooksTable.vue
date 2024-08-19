@@ -28,7 +28,7 @@
             </template>
 
             <v-card class="rounded-card">
-              <v-card-title class="text-h5">New Borrow Record</v-card-title>
+              <v-card-title class="text-h5">New Rental Record</v-card-title>
               <v-card-text class="privacy-content">
                 <v-form @submit.prevent="save">
                   <v-container>
@@ -211,7 +211,7 @@
           <!-- View Record Dialog -->
           <v-dialog v-model="dialogRecord" max-width="1500px" persistent>
             <v-card class="rounded-card">
-              <v-card-title class="text-h5">View Borrow Record</v-card-title>
+              <v-card-title class="text-h5">View Rental Record</v-card-title>
               <v-card-text class="privacy-content">
                 <v-container>
                   <!-- <v-row>
@@ -466,7 +466,7 @@ export default {
       if (this.selectedSection) {
         filtered = filtered.filter(item => item.student_section === this.selectedSection);
       }
-      filtered = filtered.filter(item => item.status === 0);
+      filtered = filtered.filter(item => item.status === 0 || item.is_archived == 0);
       return filtered;
     },
     grades() {

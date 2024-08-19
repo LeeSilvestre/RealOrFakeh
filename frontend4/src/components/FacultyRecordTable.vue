@@ -139,6 +139,7 @@
 <script>
 import axios from 'axios';
 import Swal from 'sweetalert2';
+
 export default {
   data() {
     return {
@@ -147,14 +148,12 @@ export default {
       search: '',
       selectedItem: null,
       headers: [
-          { title: 'Faculty Name', key: 'faculty_name' },
-          { title: 'Book Title', key: 'book_title' },
-          { title: 'Book Code', key: 'access_no' },
-          { title: 'Borrow Date', key: 'borrowed_date' },
-          { title: 'Return Date', key: 'return_date' },
-          { title: 'Return Status', key: 'borrow_status' },
-         // { title: 'Fine', key: 'total_fine' },
-          // { title: 'Action', sortable: false },
+        { title: 'Faculty Name', key: 'faculty_name' },
+        { title: 'Book Title', key: 'book_title' },
+        { title: 'Book Code', key: 'access_no' },
+        { title: 'Borrow Date', key: 'borrowed_date' },
+        { title: 'Return Date', key: 'return_date' },
+        { title: 'Return Status', key: 'borrow_status' },
       ],
       loading: false,
       dialog: false,
@@ -162,13 +161,11 @@ export default {
       dialogConfirmation: false, 
       dialogConfirmation2: false, 
       editedItem: {
-          book_title: '',
-          id: '',
-          access_no: '',
-          faculty_name: '',
-          book_title: '',
-          access_no: '',
-          return_duedate: '',
+        book_title: '',
+        id: '',
+        access_no: '',
+        faculty_name: '',
+        return_duedate: '',
       },
       selected: [],
       fieldErrors: {
@@ -214,18 +211,9 @@ export default {
           (this.search === '' ||
             Object.values(item).some(value =>
               value.toString().toLowerCase().includes(this.search.toLowerCase())
-            ))
+            )) &&
+          [2, 3, 4].includes(item.borrow_status)
         ));
-    },
-    displayedData() {
-      if (this.search) {
-        return this.data.filter((item) =>
-          Object.values(item).some((value) =>
-            value.toLowerCase().includes(this.search.toLowerCase())
-          )
-        );
-      }
-      return this.data.filter(item => item.borrow_status == 3 || item.borrow_status == 4 || item.borrow_status == 2);
     },
     bookTitles() {
       return this.titles.map(item => item.book_title);
@@ -266,60 +254,60 @@ export default {
         });
     },
     formatDate2(dateString) {
-        const options = {
-          month: 'long',  
-          day: 'numeric',
-          year: 'numeric'
-        };
-        const date = new Date(dateString);
-        return date.toLocaleString('en-US', options);
-      },
-      formatDate(dateString) {
-        const options = {
-          month: 'long',  
-          day: 'numeric',
-          year: 'numeric'
-        };
-        const date = new Date(dateString);
-        return date.toLocaleString('en-US', options);
-      },
-      async fetchData() {
-        try {
-          const borrowStatusResponse = await axios.get('/library/faculty/borrows');
-          const borrowStatusData = borrowStatusResponse.data;
+      const options = {
+        month: 'long',  
+        day: 'numeric',
+        year: 'numeric'
+      };
+      const date = new Date(dateString);
+      return date.toLocaleString('en-US', options);
+    },
+    formatDate(dateString) {
+      const options = {
+        month: 'long',  
+        day: 'numeric',
+        year: 'numeric'
+      };
+      const date = new Date(dateString);
+      return date.toLocaleString('en-US', options);
+    },
+    async fetchData() {
+      try {
+        const borrowStatusResponse = await axios.get('/library/faculty/borrows');
+        const borrowStatusData = borrowStatusResponse.data;
 
-          const facultyIds = borrowStatusData.map(item => item.id);
-          const facultyResponse = await axios.get('/faculty', { params: { ids: facultyIds } });
-          const faculties = facultyResponse.data.faculty || []; // Add a default empty array
+        const facultyIds = borrowStatusData.map(item => item.id);
+        const facultyResponse = await axios.get('/faculty', { params: { ids: facultyIds } });
+        const faculties = facultyResponse.data.faculty || []; // Add a default empty array
 
-          const bookIds = borrowStatusData.map(item => item.book_title);
-          const bookResponse = await axios.get('/library/books', { params: { ids: bookIds } });
-          const books = bookResponse.data || []; // Add a default empty array
+        const bookIds = borrowStatusData.map(item => item.book_title);
+        const bookResponse = await axios.get('/library/books', { params: { ids: bookIds } });
+        const books = bookResponse.data || []; // Add a default empty array
 
-          this.data = borrowStatusData.map(statusItem => {
-            const faculty = faculties.find(faculty => faculty.id === statusItem.id);
-            const book = books.find(book => book.book_title === statusItem.book_title);
-            let middleInitial = '';
-            if (faculty && faculty.mname) {
-              middleInitial = faculty.mname.charAt(0) + '.';
-            }
-            return {
-              ...statusItem,
-              faculty_name: faculty ? `${faculty.fname} ${faculty.lname}` : 'Unknown Faculty',
-              book_title: book ? book.book_title : '',
-              schoolYear: (new Date(statusItem.borrowed_date).getMonth() > 6 || (new Date(statusItem.borrowed_date).getMonth() === 6 && new Date(statusItem.borrowed_date).getDate() >= 29)) ? `${new Date(statusItem.borrowed_date).getFullYear()}-${new Date(statusItem.borrowed_date).getFullYear() + 1}` : `${new Date(statusItem.borrowed_date).getFullYear() - 1}-${new Date(statusItem.borrowed_date).getFullYear()}`,
-              month: new Date(statusItem.borrowed_date).toLocaleString('default', { month: 'long' })
-            };
-          });
+        this.data = borrowStatusData.map(statusItem => {
+          const faculty = faculties.find(faculty => faculty.id === statusItem.id);
+          const book = books.find(book => book.book_title === statusItem.book_title);
+          let middleInitial = '';
+          if (faculty && faculty.mname) {
+            middleInitial = faculty.mname.charAt(0) + '.';
+          }
+          return {
+            ...statusItem,
+            faculty_name: faculty ? `${faculty.fname} ${faculty.lname}` : 'Unknown Faculty',
+            book_title: book ? book.book_title : '',
+            schoolYear: (new Date(statusItem.borrowed_date).getMonth() > 6 || (new Date(statusItem.borrowed_date).getMonth() === 6 && new Date(statusItem.borrowed_date).getDate() >= 29)) ? `${new Date(statusItem.borrowed_date).getFullYear()}-${new Date(statusItem.borrowed_date).getFullYear() + 1}` : `${new Date(statusItem.borrowed_date).getFullYear() - 1}-${new Date(statusItem.borrowed_date).getFullYear()}`,
+            month: new Date(statusItem.borrowed_date).toLocaleString('default', { month: 'long' })
+          };
+        });
 
-          const schoolYears = [...new Set(this.data.map(item => item.schoolYear))].sort((a, b) => b.split('-')[0] - a.split('-')[0]);
-          this.schoolYears = ['All', ...schoolYears];
+        const schoolYears = [...new Set(this.data.map(item => item.schoolYear))].sort((a, b) => b.split('-')[0] - a.split('-')[0]);
+        this.schoolYears = ['All', ...schoolYears];
 
-        } catch (error) {
-          console.error('Error fetching data:', error);
-          this.data = []; // Ensure `this.data` is an array to avoid further issues
-        }
-      },
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        this.data = []; // Ensure `this.data` is an array to avoid further issues
+      }
+    },
     showConfirmation() {
       this.fieldErrors = {
         book_title: this.editedItem.book_title.trim() === '',
@@ -346,7 +334,7 @@ export default {
     closeConfirmation() {
       this.dialogConfirmation = false;
     },
-    returnConfirmation(item){
+    returnConfirmation(item) {
       this.selectedItem = item;
       this.dialogConfirmation2 = true;
     },
@@ -355,77 +343,105 @@ export default {
     },
     back() {
       axios.put('/library/faculty/damaged/' + this.selectedItem.borrow_id)
-      .then(() => {
-        this.loading = true;
-        this.loading = false;
-        this.closeConfirmation2();
-        this.fetchData();
-      })
-      .catch(error => {
-        Swal.fire('Error', 'Error updating borrow status! Please try again. ', 'error');
-        this.loading = false;
-      });
+        .then(() => {
+          this.loading = true;
+          this.loading = false;
+          this.closeConfirmation2();
+          this.fetchData();
+        })
+        .catch(error => {
+          Swal.fire('Error', 'Error updating borrow status! Please try again.', 'error');
+          this.loading = false;
+        });
     },
     backback() {
       axios.put('/library/faculty/lost/' + this.selectedItem.borrow_id)
-      .then(() => {
-        this.loading = true;
-        this.loading = false;
-        this.closeConfirmation2();
-        this.fetchData();
-      })
-      .catch(error => {
-        Swal.fire('Error', 'Error updating borrow status! Please try again. ', 'error');
-        this.loading = false;
-      });
+        .then(() => {
+          this.loading = true;
+          this.loading = false;
+          this.closeConfirmation2();
+          this.fetchData();
+        })
+        .catch(error => {
+          Swal.fire('Error', 'Error updating borrow status! Please try again.', 'error');
+          this.loading = false;
+        });
     },
-    save() {
+    deleteItem() {
+      axios.delete(`/library/faculty/borrows/${this.selectedItem.borrow_id}`)
+        .then(() => {
+          Swal.fire('Success', 'Item deleted successfully!', 'success');
+          this.fetchData();
+        })
+        .catch(error => {
+          Swal.fire('Error', 'Error deleting item! Please try again.', 'error');
+        })
+        .finally(() => {
+          this.dialogDelete = false;
+        });
+    },
+    selectBookTitle() {
+      const selectedBook = this.titles.find(item => item.book_title === this.editedItem.book_title);
+      if (selectedBook) {
+        this.editedItem.access_no = selectedBook.access_no;
+      }
+    },
+    addItem() {
       axios.post('/library/faculty/borrows', this.editedItem)
-      .then(() => {
-        this.fetchData()
-        this.closeConfirmation();
-        this.close();
-      })
-      .catch(error => {
-        Swal.fire('Error', 'Error adding record! Please try again. ', 'error');
-      });
+        .then(() => {
+          Swal.fire('Success', 'Item added successfully!', 'success');
+          this.fetchData();
+        })
+        .catch(error => {
+          Swal.fire('Error', 'Error adding item! Please try again.', 'error');
+        })
+        .finally(() => {
+          this.dialog = false;
+        });
     },
-    close() {
-      this.dialog = false;
-      this.editedItem = {
-          borrow_id: '',
-          faculty_name: '',
-          book_title: '',
-          borrow_date: '',
-          return_duedate: '',
-          status: '',
-      };
+    updateItem() {
+      axios.put(`/library/faculty/borrows/${this.editedItem.borrow_id}`, this.editedItem)
+        .then(() => {
+          Swal.fire('Success', 'Item updated successfully!', 'success');
+          this.fetchData();
+        })
+        .catch(error => {
+          Swal.fire('Error', 'Error updating item! Please try again.', 'error');
+        })
+        .finally(() => {
+          this.dialog = false;
+        });
     },
     editItem(item) {
       this.editedItem = { ...item };
       this.dialog = true;
     },
-    deleteItem(item) {
-      this.editedItem = { ...item };
+    deleteItemPrompt(item) {
+      this.selectedItem = item;
       this.dialogDelete = true;
     },
-    deleteItemConfirm() {
-      const index = this.data.findIndex(
-        (item) => item.borrow_id === this.editedItem.borrow_id
-      );
-      this.data.splice(index, 1);
-      this.closeDelete();
-    },
-    closeDelete() {
+    closeDeleteDialog() {
       this.dialogDelete = false;
+    },
+    resetForm() {
       this.editedItem = {
-          borrow_id: '',
-          faculty_name: '',
-          book_title: '',
-          borrow_date: '',
-          return_duedate: '',
-          status: '',
+        book_title: '',
+        id: '',
+        access_no: '',
+        faculty_name: '',
+        return_duedate: '',
       };
+      this.fieldErrors = {
+        book_title: false,
+        id: false,
+        access_no: false,
+        return_duedate: false,
+      };
+    },
+    clearFilters() {
+      this.search = '';
+      this.selectedSchoolYear = 'All';
+      this.selectedMonthly = 'All';
     },
   },
 };

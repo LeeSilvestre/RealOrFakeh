@@ -7,7 +7,7 @@
         <span class="text">Book Inventory</span>
       </div>
       <div class="buttons">
-        <v-btn class="mb-2" color="#28a745" dark @click="showReportOptions">Generate Report</v-btn>
+        <v-btn class="mb-2" color="#28a745" dark @click="showReportOptions">Generate Inventory</v-btn>
       </div>
       <div class="buttons">
         <v-btn class="mb-2" color="primary" dark @click="manageCategories">Manage Categories</v-btn>

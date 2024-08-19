@@ -10,10 +10,10 @@ import axios from "axios";
 window.axios = axios
 axios.defaults.withCredentials = false
 // axios.defaults.baseURL = "http://26.81.173.255:8000/api"
-//let backendUrl = "http://localhost:8000/api/"
+let backendUrl = "http://localhost:8000/api/"
 //let backendUrl = "http://127.0.0.1:8000/api/"
 //let backendUrl = "http://26.81.173.255:8000/api"
-  let backendUrl = "http://192.168.1.27:8000/api"
+//let backendUrl = "http://192.168.16.165:8000/api"
 //let backendUrl = "http://192.168.2.150:8000/api"
 
 axios.defaults.baseURL = backendUrl

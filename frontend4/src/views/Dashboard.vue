@@ -2,362 +2,377 @@
   <main>
     <div class="top-container">
       <h1 class="bg-title">Dashboard</h1>
-      <div class="total-student">
+      <div class="pendingBooks">
         <span class="material-icons">dashboard</span>
         <span class="text">Dashboard</span>
       </div>
     </div>
     <hr>
-
-    <!-- Combined container with cards and charts -->
-    <div class="container">
-      <div class="card">
-        <div class="total-student">
-          <h1 class="info-text">
-            <span class="material-icons">feed</span>
-            BOOK TITLES
-          </h1>
-          <br>
-          <h2>Total: {{ totalBooks }}</h2>
+    <div class="main-content">
+      <div class="top">
+        <div class="jhs">
+          <div class="total-container">
+            <h3><span class="material-icons">school</span>Junior High</h3>
+            <v-card flat>
+              <v-list-item>
+                <v-list-item-content>
+                  <div class="total-equipment">
+                    <div class="top">
+                      <v-card-text>
+                        <h2>Attendee Today:</h2>
+                        <br>
+                        <h1>{{ juniorHighCount }}</h1>
+                      </v-card-text>
+                    </div>
+                    <div class="bottom">
+                      <div class="per-item">
+                        <v-card-text class="borrowed">
+                          <h5>Active Borrow Records:</h5>
+                          <br>
+                          <h4 style="color:green">{{ borrowedBooks.junior }}</h4>
+                        </v-card-text>
+                        <v-card-text class="overdue">
+                          <h5>Active Overdue Records:</h5>
+                          <br>
+                          <h4 style="color: orange">{{ overdueBooks.junior }}</h4>
+                        </v-card-text>
+                        <v-card-text class="damaged">
+                          <h5>Records With Fine:</h5>
+                          <br>
+                          <h4 style="color: red">{{ damagedBooks.junior }}</h4>
+                        </v-card-text>
+                      </div>
+                    </div>
+                  </div>
+                </v-list-item-content>
+              </v-list-item>
+            </v-card>
+          </div>
+        </div>
+        <div class="shs">
+          <div class="total-container">
+            <h3><span class="material-icons">school</span>Senior High</h3>
+            <v-card flat>
+              <v-list-item>
+                <v-list-item-content>
+                  <div class="total-equipment">
+                    <div class="top">
+                      <v-card-text>
+                        <h2>Attendee Today:</h2>
+                        <br>
+                        <h1>{{ seniorHighCount }}</h1>
+                      </v-card-text>
+                    </div>
+                    <div class="bottom">
+                      <div class="per-item">
+                        <v-card-text class="borrowed">
+                          <h5>Active Borrow Records:</h5>
+                          <br>
+                          <h4 style="color:green">{{ borrowedBooks.senior }}</h4>
+                        </v-card-text>
+                        <v-card-text class="overdue">
+                          <h5>Active Overdue Records:</h5>
+                          <br>
+                          <h4 style="color: orange">{{ overdueBooks.senior }}</h4>
+                        </v-card-text>
+                        <v-card-text class="damaged">
+                          <h5>Records With Fine:</h5>
+                          <br>
+                          <h4 style="color: red">{{ damagedBooks.senior }}</h4>
+                        </v-card-text>
+                      </div>
+                    </div>
+                  </div>
+                </v-list-item-content>
+              </v-list-item>
+            </v-card>
+          </div>
         </div>
       </div>
-      <div class="card">
-        <div class="total-student">
-          <h1 class="info-text">
-            <span class="material-icons">pending</span>
-            STUDENT BORROWED BOOKS
-          </h1>
-          <h2>Total: {{ totalPendingBooks }}</h2>
-        </div>
-      </div>
-      <div class="card">
-        <div class="total-student">
-          <h1 class="info-text">
-            <span class="material-icons">history_edu</span>
-            FACULTY BORROWED BOOKS
-          </h1>
-          <h2>Total: {{ totalFacultyPendingBooks }}</h2>
-        </div>
-      </div>
-    </div>
-
-    <div class="charts-row">
-      <div class="card big-chart-card">
-        <h1 class="info-text">
-          <span class="material-icons">bar_chart</span>
-          MONTHLY LIBRARY LOGS
-        </h1>
-        <canvas ref="summaryChartCanvas"></canvas>
-      </div>
-      <div class="card big-chart-card pie-chart-card">
-        <h1 class="info-text">
-          <span class="material-icons">pie_chart</span>
-          BOOKS PER CATEGORY
-        </h1>
-        <canvas ref="pieChartCanvas"></canvas>
+      <div class="bottom-container">
+        <TotalBorrowedChart
+          :juniorHighData="juniorHighData"
+          :seniorHighData="seniorHighData"
+        />
       </div>
     </div>
   </main>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue';
+<script>
+import TotalBorrowedChart from '../components/TotalBorrowedChart.vue';
 import axios from 'axios';
-import {  
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  BarElement,
-  BarController,
-  CategoryScale,
-  LinearScale,
-  ArcElement,
-  PieController
-} from 'chart.js';
 
-ChartJS.register(
-  Title,
-  Tooltip,
-  Legend,
-  BarElement,
-  BarController,
-  CategoryScale,
-  LinearScale,
-  ArcElement,
-  PieController
-);
+export default {
+  components: {
+    TotalBorrowedChart,
+  },
+  data() {
+    return {
+      juniorHighCount: 0,
+      seniorHighCount: 0,
+      borrowedBooks: { junior: 0, senior: 0 },
+      overdueBooks: { junior: 0, senior: 0 },
+      damagedBooks: { junior: 0, senior: 0 },
+      juniorHighData: [],  // Default empty array
+      seniorHighData: [],  // Default empty array
+    };
+  },
+  methods: {
+    async fetchDashboardData() {
+      try {
+        const today = new Date().toISOString().split('T')[0];
 
-const totalBooks = ref(0);
-const totalPendingBooks = ref(0);
-const totalFacultyPendingBooks = ref(0);
-const timeData = ref([]);
-const bookCategories = ref([]);
-const summaryChartCanvas = ref(null);
-const pieChartCanvas = ref(null);
-const bookCategoryCounts = ref({});
+        // Fetch all logs
+        const logsResponse = await axios.get('/library/logs');
+        const logs = logsResponse.data;
 
-const fetchData = async () => {
-  try {
-    const booksResponse = await axios.get('/library/books');
-    const categoriesResponse = await axios.get('/library/category');
-    const borrowStatusResponse = await axios.get('/library/borrowstatus');
-    const facultyBorrowsResponse = await axios.get('/library/faculty/borrows');
-    const logsResponse = await axios.get('/library/logs');
+        // Fetch all students
+        const studentsResponse = await axios.get('/student');
+        const studentsResponseData = studentsResponse.data;
 
-    console.log('Books:', booksResponse.data);
-    console.log('Categories:', categoriesResponse.data);
-    console.log('Borrow Status:', borrowStatusResponse.data);
-    console.log('Faculty Borrows:', facultyBorrowsResponse.data);
-    console.log('Logs:', logsResponse.data);
+        // Check format of students data
+        if (studentsResponseData.status !== 200 || !Array.isArray(studentsResponseData.student)) {
+          console.error('Unexpected students data format:', studentsResponseData);
+          return;
+        }
 
-    totalBooks.value = booksResponse.data.length;
-    totalPendingBooks.value = borrowStatusResponse.data.filter(
-      item => [0, 1, 5, 6, 7].includes(item.borrow_status)
-    ).length;
-    totalFacultyPendingBooks.value = facultyBorrowsResponse.data.filter(
-      item => [0, 1, 5, 6, 7].includes(item.borrow_status)
-    ).length;
-    bookCategories.value = categoriesResponse.data;
+        const students = studentsResponseData.student;
 
-    processBooksData(booksResponse.data);
-    calculateMonthlyLogs(logsResponse.data);
-    renderSummaryChart();
-    renderPieChart();
-  } catch (error) {
-    console.error('Error fetching data:', error);
-  }
-};
+        // Map student ID to grade level
+        const gradeLevels = students.reduce((acc, student) => {
+          if (student.student_id && student.grade_level) {
+            acc[student.student_id] = student.grade_level;
+          }
+          return acc;
+        }, {});
 
-const calculateMonthlyLogs = (logs) => {
+        // Filter logs for today's date and count attendees
+        const counts = { junior: 0, senior: 0 };
+        logs.forEach(log => {
+          const logDate = log.login_date.split('T')[0]; // Extract date from datetime
+          if (logDate === today) {
+            const gradeLevel = gradeLevels[log.student_id];
+            if (gradeLevel < 11) {
+              counts.junior += 1;
+            } else {
+              counts.senior += 1;
+            }
+          }
+        });
 
-  console.log('Logs:', logs);
-  const monthlyCounts = Array(12).fill(0);
+        this.juniorHighCount = counts.junior;
+        this.seniorHighCount = counts.senior;
 
-  logs.forEach(log => {
-    const month = new Date(log.login_date).getMonth();
-    if (month >= 0 && month < 12) {
-      monthlyCounts[month]++;
-    }
-  });
+        // Fetch borrow status data
+        const borrowStatusResponse = await axios.get('/library/borrowstatus');
+        const borrowStatusData = borrowStatusResponse.data;
 
-  console.log('Monthly Counts:', monthlyCounts);
+        // Initialize counters
+        const borrowCounts = { junior: 0, senior: 0 };
+        const overdueCounts = { junior: 0, senior: 0 };
+        const fineCounts = { junior: 0, senior: 0 };
 
-  timeData.value = monthlyCounts.map((count, index) => ({
-    label: new Date(0, index).toLocaleString('en-US', { month: 'short' }),
-    count
-  }));
-};
-
-const processBooksData = (books) => {
-  const categoryCounts = {};
-
-  books.forEach(book => {
-    const category = book.categ_name;
-    if (category) {
-      categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-    }
-  });
-
-  // Update the reactive reference
-  bookCategoryCounts.value = categoryCounts;
-};
-
-const renderSummaryChart = () => {
-  if (summaryChartCanvas.value) {
-    new ChartJS(summaryChartCanvas.value.getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: timeData.value.map(item => item.label),
-        datasets: [{
-          label: 'Count',
-          data: timeData.value.map(item => item.count),
-          backgroundColor: 'rgba(75, 192, 192, 0.2)',
-          borderColor: 'rgba(75, 192, 192, 1)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        scales: { 
-          y: { 
-            beginAtZero: true,
-            ticks: {
-              stepSize: 1, 
-              callback: function(value) { 
-                if (Number.isInteger(value)) {
-                  return value;
-                }
+        borrowStatusData.forEach(record => {
+          const gradeLevel = gradeLevels[record.student_id];
+          if (gradeLevel) {
+            if (gradeLevel < 11) {
+              // Junior High
+              if (record.borrow_status === 0) {
+                borrowCounts.junior += 1;
+              } else if (record.borrow_status === 1) {
+                overdueCounts.junior += 1;
+              } else if ([5, 6, 7].includes(record.borrow_status)) {
+                fineCounts.junior += 1;
+              }
+            } else {
+              // Senior High
+              if (record.borrow_status === 0) {
+                borrowCounts.senior += 1;
+              } else if (record.borrow_status === 1) {
+                overdueCounts.senior += 1;
+              } else if ([5, 6, 7].includes(record.borrow_status)) {
+                fineCounts.senior += 1;
               }
             }
-          } 
-        },
-        responsive: true,
-        maintainAspectRatio: false
-      }
-    });
-  }
-};
+          }
+        });
 
-const renderPieChart = () => {
-  if (pieChartCanvas.value) {
-    new ChartJS(pieChartCanvas.value.getContext('2d'), {
-      type: 'pie',
-      data: {
-        labels: Object.keys(bookCategoryCounts.value),
-        datasets: [{
-          label: 'Books per Category',
-          data: Object.values(bookCategoryCounts.value),
-          backgroundColor: [
-            'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)',
-            'rgba(255, 205, 86, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 99, 132, 0.2)',
-            'rgba(201, 203, 207, 0.2)'
-          ],
-          borderColor: [
-            'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)',
-            'rgba(255, 205, 86, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)',
-            'rgba(201, 203, 207, 1)'
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false
-      }
-    });
-  }
-};
+        this.borrowedBooks.junior = borrowCounts.junior;
+        this.borrowedBooks.senior = borrowCounts.senior;
+        this.overdueBooks.junior = overdueCounts.junior;
+        this.overdueBooks.senior = overdueCounts.senior;
+        this.damagedBooks.junior = fineCounts.junior;
+        this.damagedBooks.senior = fineCounts.senior;
 
-onMounted(fetchData);
+        // Optionally, handle the data for charts or additional processing
+        // Example: this.juniorHighData = ...
+        // Example: this.seniorHighData = ...
+
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    },
+  },
+  mounted() {
+    this.fetchDashboardData();
+  },
+};
 </script>
 
-<style lang="scss" scoped>
+
+
+<style scoped>
 .top-container {
   display: flex;
   margin: 0.5rem;
-
-  .bg-title {
-    z-index: -1;
-    position: absolute;
-    opacity: 10%;
-    margin-top: -40px;
-    font-size: 100px;
-    font-family: Impact, fantasy;
-  }
-
-  .total-student {
-    flex: 1;
-
-    .material-icons {
-      color: var(--dark);
-      font-size: 2.5rem;
-    }
-
-    .text {
-      position: relative;
-      color: var(--dark);
-      font-size: 2.5rem;
-      font-weight: 900;
-      bottom: 0.5rem;
-      text-shadow: 0 1px 1px;
-      margin-left: 1rem;
-    }
-  }
 }
 
-.container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: flex-start;
-  width: 100%;
-  margin-bottom: 1.5rem;
+.bg-title {
+  z-index: -1;
+  position: absolute;
+  opacity: 10%;
+  margin-top: -40px;
+  font-size: 100px;
+  font-family: Impact, fantasy;
 }
 
-.card {
+.pendingBooks {
   flex: 1;
-  margin: 0.5rem;
-  padding: 1.5rem;
-  background-color: #f0f0f0;
+}
+
+.material-icons {
   color: var(--dark);
-  border-radius: 5px;
+  font-size: 2.5rem;
+}
+
+.text {
+  position: relative;
+  color: var(--dark);
+  font-size: 2.5rem;
+  font-weight: 900;
+  bottom: 0.5rem;
+  text-shadow: 0 1px 1px;
+  margin-left: 1rem;
+}
+
+.main-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
-
-  &:hover {
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-  }
-
-  .total-student {
-    width: 100%;
-
-    .info-text {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-shadow: 0 0 1px;
-      font-size: 25px;
-      margin-bottom: 1rem;
-      text-align: center;
-
-      .material-icons {
-        font-size: 38px;
-        margin-right: 0.5rem;
-      }
-    }
-
-    h2 {
-      margin-bottom: 1rem;
-      font-weight: 900;
-      text-align: center;
-    }
-  }
+  margin-right: 10px;
+  gap: 2rem;
 }
 
-.charts-row {
+.top {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  width: 100%;
-  margin-bottom: 1rem;
-
-  .big-chart-card, .pie-chart-card {
-    flex: 1;
-    margin: 0.5rem;
-    height: 400px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: #f0f0f0;
-    padding: 1rem;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease;
-
-    canvas {
-      width: 85% !important;
-      height: auto !important;
-    }
-
-    &:hover {
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-    }
-  }
 }
 
-h1.info-text {
-  display: flex;
-  align-items: center;
+.jhs, .shs {
+  flex: 1;
+}
+
+.total-container {
+  margin-right: 1rem;
+  flex: 0.5;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.200);
+  padding: 1.5rem;
+  border-left: 6px solid var(--dark);
+  color: var(--dark);
+}
+
+h3 {
+  text-shadow: 0 0 1px;
   font-size: 20px;
-  margin-bottom: 1rem;
-  text-align: center;
+  position: relative;
+  bottom: 15px;
+}
 
-  .material-icons {
-    font-size: 36px;
-    margin-right: 0.5rem;
-  }
+.material-icons {
+  position: relative;
+  font-size: 35px;
+  top: 12px;
+  right: 2px;
+}
+
+.total-equipment {
+  display: flex;
+  flex-direction: column;
+}
+
+.top {
+  text-align: center;
+  padding: 1rem;
+  flex: 0.5;
+}
+
+h2 {
+  color: var(--dark-alt);
+  font-weight: 900;
+  text-shadow: 0 0 1px;
+}
+
+h1 {
+  font-size: 46px;
+  color: var(--grey);
+  font-weight: 900;
+}
+
+.bottom {
+  flex: 0.5;
+  padding: 1rem;
+}
+
+h5 {
+  color: var(--dark-alt);
+  font-weight: 700;
+}
+
+h4 {
+  font-weight: 900;
+  color: var(--grey);
+}
+
+.per-item {
+  display: flex;
+  padding: 0.5rem;
+  text-align: center;
+  border-radius: 5px;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.borrowed, .overdue, .damaged {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.200);
+  border-radius: 10px;
+}
+
+.borrowed {
+  border-top: 8px solid green;
+}
+
+.overdue {
+  border-top: 8px solid orange;
+}
+
+.damaged {
+  border-top: 8px solid red;
+}
+
+.v-card {
+  border-radius: 10px;
+  padding: 0.5rem;
+}
+
+.v-list-item-title {
+  text-shadow: 0 0 1px;
+  font-size: 20px;
+  position: relative;
+  color: var(--dark);
+  padding: 0.5rem;
+}
+
+.bottom-container {
+  outline: 2px solid;
 }
 </style>
