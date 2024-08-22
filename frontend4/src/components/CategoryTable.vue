@@ -32,8 +32,6 @@
               <v-form @submit.prevent="save">
                 <v-text-field v-model="editedItem.categ_name" label="Category Name" :error-messages="getErrorMessage('categ_name')"></v-text-field>
                 <v-text-field v-model="editedItem.book_ddc" label="DDC" :error-messages="getErrorMessage('categ_name')"></v-text-field>
-                <v-text-field v-model="editedItem.lost_fine" label="Fine if lost"></v-text-field>
-                <v-text-field v-model="editedItem.damaged_fine" label="Fine if damaged"></v-text-field>
               </v-form>
             </v-card-text>
             <v-card-actions>
@@ -52,8 +50,6 @@
               <div>
                 <strong>Category Name:</strong> {{ editedItem.categ_name }} 
                 <strong>DDC:</strong> {{ editedItem.book_ddc }}
-                <strong>Fine if lost:</strong> {{ editedItem.lost_fine }}
-                <strong>Fine if damaged:</strong> {{ editedItem.damaged_fine }}
               </div>
             </v-card-text>
             <v-card-actions>
@@ -71,8 +67,6 @@
               <v-form @submit.prevent="saveEdit">
                 <v-text-field v-model="editedItem.categ_name" label="Category Name"></v-text-field>
                 <v-text-field v-model="editedItem.book_ddc" label="DDC"></v-text-field>
-                <v-text-field v-model="editedItem.lost_fine" label="Fine if lost"></v-text-field>
-                <v-text-field v-model="editedItem.damaged_fine" label="Fine if damaged"></v-text-field>
               </v-form>
             </v-card-text>
             <v-card-actions>
@@ -91,8 +85,6 @@
               <div>
                 <strong>Category Name:</strong> {{ editedItem.categ_name }}
                 <strong>DDC:</strong> {{ editedItem.book_ddc }}
-                <strong>Fine if lost:</strong> {{ editedItem.lost_fine }}
-                <strong>Fine if damaged:</strong> {{ editedItem.damaged_fine }}
               </div>
             </v-card-text>
             <v-card-actions>
@@ -126,8 +118,6 @@
       <tr>
         <td>{{ item.categ_name }}</td>
         <td>{{ item.book_ddc }}</td>
-        <td>₱ {{ item.lost_fine }}</td>
-        <td>₱ {{ item.damaged_fine }}</td>
         <td>
           <v-icon class="me-2" size="small" style="color: #2F3F64" @click="editItem(item)">mdi-pencil</v-icon>
           <v-icon size="small" style="color: #B71C1C" @click="archiveItem(item)">mdi-archive</v-icon>
@@ -157,15 +147,11 @@ export default {
       headers: [
         { title: 'NAME', key: 'categ_name' },
         { title: 'DDC', key: 'book_ddc' },
-        { title: 'LOST FINE', key: 'lost_fine' },
-        { title: 'DAMAGE FINE', key: 'damaged_fine' },
         { title: 'Actions', sortable: false },
       ],
       editedItem: {
         categ_name: '',
         book_ddc: '',
-        lost_fine: '',
-        damaged_fine: '',
       },
       fieldErrors: {
         categ_name: false,

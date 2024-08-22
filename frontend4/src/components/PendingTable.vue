@@ -27,81 +27,83 @@
             </template>
 
           <v-card>
-      <v-card-title class="text-h5">{{ formTitle }}</v-card-title>
-      <v-card-text>
-      <v-form @submit.prevent="showConfirmation">
-      <!-- Autocomplete for Book Code -->
-      <v-autocomplete
-        v-model="editedItem.book_code"
-        :items="bookList.map(book => book.book_code)"
-        item-text="book_code"
-        label="Book Code"
-        :search-input.sync="search"
-        autocomplete="off"
-        :error-messages="getErrorMessage('book_code')"
-        @input="fetchBookInfo"
-      ></v-autocomplete>
-      
-      <!-- Display Book Information -->
-      <v-card v-if="selectedBook" class="book-info-card mb-4">
-        <v-card-title  style="padding: 0;">Book Information</v-card-title>
-        <v-card-text>
-          <div class="book-info-item">
-            <strong>Title:</strong> {{ selectedBook.title }}
-          </div>
-          <div class="book-info-item">
-            <strong>Author:</strong> {{ selectedBook.author }}
-          </div>
-          <div class="book-info-item">
-            <strong>Publisher:</strong> {{ selectedBook.publisher }}
-          </div>
-        </v-card-text>
-      </v-card>
+          <v-card-title class="text-h5">{{ formTitle }}</v-card-title>
+          <v-card-text>
+          <v-form @submit.prevent="showConfirmation">
+            <!-- Autocomplete for Book Code -->
+            <v-autocomplete
+              v-model="editedItem.book_code"
+              :items="bookList.map(book => book.book_code)"
+              item-text="book_code"
+              label="Book Code"
+              :search-input.sync="search"
+              autocomplete="off"  
+              :error-messages="getErrorMessage('book_code')"
+              @input="fetchBookInfo"
+            ></v-autocomplete>
+            
+            <!-- Display Book Information -->
+            <v-card v-if="selectedBook" class="book-info-card mb-4">
+              <v-card-title  style="padding: 0;">Book Information</v-card-title>
+              <v-card-text>
+                <div class="book-info-item">
+                  <strong>Title:</strong> {{ selectedBook.title }}
+                </div>
+                <div class="book-info-item">
+                  <strong>Author:</strong> {{ selectedBook.author }}
+                </div>
+                <div class="book-info-item">
+                  <strong>Publisher:</strong> {{ selectedBook.publisher }}
+                </div>
+              </v-card-text>
+            </v-card>
 
-      <!-- Autocomplete for Student ID -->
-      <v-autocomplete
-        v-model="editedItem.student_id"
-        :items="studentList.map(student => student.student_id)"
-        item-text="student_id"
-        label="Student ID"
-        :search-input.sync="search"
-        autocomplete="off"
-        :error-messages="getErrorMessage('student_id')"
-         @input="fetchStudentInfo"
-      ></v-autocomplete>
-      
-      <!-- Display Student Information -->
-      <v-card v-if="selectedStudent" class="student-info-card mb-4">
-        <v-card-title style="padding: 0;">Student Information</v-card-title>
-        <v-card-text>
-          <div class="student-info-item">
-            <strong>Name:</strong> {{ selectedStudent.name }}
-          </div>
-          <div class="student-info-item">
-            <strong>LRN:</strong> {{ selectedStudent.lrn }}
-          </div>
-          <div class="student-info-item">
-            <strong>Email:</strong> {{ selectedStudent.email }}
-          </div>
-        </v-card-text>
-      </v-card>
+            <!-- Autocomplete for Student ID -->
+            <v-autocomplete
+              v-model="editedItem.student_id"
+              :items="studentList.map(student => student.student_id)"
+              item-text="student_id"
+              label="Student ID"
+              :search-input.sync="search"
+              autocomplete="off"
+              :error-messages="getErrorMessage('student_id')"
+              @input="fetchStudentInfo"
+            ></v-autocomplete>
+            
+            <!-- Display Student Information -->
+            <v-card v-if="selectedStudent" class="student-info-card mb-4">
+              <v-card-title style="padding: 0;">Student Information</v-card-title>
+              <v-card-text>
+                <div class="student-info-item">
+                  <strong>Name:</strong> {{ selectedStudent.name }}
+                </div>
+                <div class="student-info-item">
+                  <strong>LRN:</strong> {{ selectedStudent.lrn }}
+                </div>
+                <div class="student-info-item">
+                  <strong>Email:</strong> {{ selectedStudent.email }}
+                </div>
+              </v-card-text>
+            </v-card>
 
-              <v-text-field
-                v-model="editedItem.return_duedate"
-                type="date"
-                label="Return Due Date"
-                :error-messages="getErrorMessage('return_duedate')"
-                :min="todayDate"
-              ></v-text-field>
-            </v-form>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn class="button button-save" @click="showConfirmation">Add Record</v-btn>
-            <v-btn class="button button-cancel" @click="close">Cancel</v-btn>
-          </v-card-actions>
-          </v-card>
-      </v-dialog>
+            <v-text-field v-model="editedItem.access_no" label="Accession No."></v-text-field>
+
+                <v-text-field
+                  v-model="editedItem.return_duedate"
+                  type="date"
+                  label="Return Due Date"
+                  :error-messages="getErrorMessage('return_duedate')"
+                  :min="todayDate"
+                ></v-text-field>
+              </v-form>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn class="button button-save" @click="showConfirmation">Add Record</v-btn>
+              <v-btn class="button button-cancel" @click="close">Cancel</v-btn>
+            </v-card-actions>
+            </v-card>
+        </v-dialog>
 
           <v-dialog v-model="dialogConfirmation" max-width="500px">
             <v-card>
@@ -159,11 +161,18 @@
       <template v-slot:item="{ item }">
         <tr>
           <td>{{ item.student_name }}</td>
-          <td>{{ item.book_title }}</td>
+          <td>{{ item.book_code }}</td>
           <td>{{ item.access_no }}</td>
           <td>{{ formatDate2(item.borrowed_date) }}</td>
           <td>{{ formatDate(item.return_duedate) }}</td>
-          <td :class="{ 'green-text': item.borrow_status === 0 }">{{ availableStatus[item.borrow_status] }}</td>
+          
+
+          <td class="v-chip">
+              <v-chip :color="getStatusColor(item.borrow_status)" dark>{{ availableStatus[item.borrow_status] }}</v-chip>
+          </td>
+
+
+
           <td>
             <button v-if="item.borrow_status !== 2" type="button" class="btn btn-success white-text" @click="returnConfirmation(item)" :disabled="loading">
               <span v-if="loading">Returning...</span>
@@ -191,8 +200,8 @@ export default {
       selectedStudent: null,
       headers: [
           { title: 'Student Name', key: 'student_name' },
-          { title: 'Book Title', key: 'book_title' },
-          { title: 'Book Code', key: 'access_no' },
+          { title: 'Book Code', key: 'book_code' },
+          { title: 'Accession No.', key: 'access_no' },
           { title: 'Borrow Date', key: 'borrowed_date' },
           { title: 'Return Due Date', key: 'return_duedate' },
           { title: 'Status', key: 'borrow_status' },
@@ -295,6 +304,34 @@ export default {
       const day = String(today.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     },
+    getStatusColor(status) {
+          // Ensure status is within the bounds of availableStatus
+          if (status < 0 || status >= this.availableStatus.length) {
+            return 'blue'; // Default color for unknown status
+          }
+
+          // change the status color
+          switch(status) {
+            case 0:
+              return 'blue';  // // Pending
+            case 1:
+              return 'red'; // Overdue
+            case 2:
+              return 'green';  // Returned
+            case 3:
+              return 'red'; // Damage
+            case 4:
+              return 'red'; // Lost
+            case 5:
+              return 'red'; //  // Returned with Damage
+            case 6:
+              return 'red'; //  // Lost Payment
+            case 7:
+              return 'red'; //  // Overdue Pay
+            default:
+              return 'grey';   // Default color for unknown status
+          }
+        },
     fetchItems() {
       axios.get('/library/books')
         .then(response => {
@@ -335,7 +372,7 @@ export default {
         return date.toLocaleString('en-US', options);
       },
       fetchData() {
-  axios.get('/library/borrowstatus')
+     axios.get('/library/borrowstatus')
     .then((response) => {
       const borrowStatusData = response.data;
 
@@ -347,14 +384,14 @@ export default {
           }
           const students = studentResponse.data.student;
 
-          const bookIds = borrowStatusData.map(item => item.book_title);
+          const bookIds = borrowStatusData.map(item => item.book_code);
           axios.get('/library/books', { params: { ids: bookIds } })
             .then((bookResponse) => {
               const books = bookResponse.data;
 
               this.data = borrowStatusData.map(statusItem => {
                 const student = students.find(student => student.student_id === statusItem.student_id);
-                const book = books.find(book => book.book_title === statusItem.book_title);
+                const book = books.find(book => book.book_code === statusItem.book_code);
                 let middleInitial = '';
                 if (student && student.middle_name) {
                   middleInitial = student.middle_name.charAt(0) + '.';
@@ -363,7 +400,7 @@ export default {
                   ...statusItem,
                   student_name: student ? `${student.first_name} ${middleInitial} ${student.last_name}${student.extension ? ' ' + student.extension : ''}` : '',
                   student_lrn: student ? student.student_lrn : '',
-                  book_title: book ? book.book_title : '',
+                  book_code: book ? book.book_code : '',
                 };
               });
               this.$forceUpdate();
@@ -380,9 +417,9 @@ export default {
       console.error('Error fetching borrow status data:', error);
     });
     console.log(this.titles);
-console.log(this.categories);
-console.log(this.data);
-},
+    console.log(this.categories);
+    console.log(this.data);
+    },
 
 fetchStudentInfo(studentId) {
       // Find the selected student by ID
@@ -404,7 +441,7 @@ fetchStudentInfo(studentId) {
     
     showConfirmation() {
       this.fieldErrors = {
-        book_title: this.editedItem.book_title.trim() === '',
+        book_code: this.editedItem.book_code.trim() === '',
         student_id: this.editedItem.student_id.trim() === '',
         access_no: this.editedItem.access_no.trim() === '',
         categ_name: this.editedItem.access_no.trim() === '',
@@ -422,7 +459,7 @@ fetchStudentInfo(studentId) {
     },
     isFormValid() {
       return (
-        this.editedItem.book_title.trim() !== '' &&
+        this.editedItem.book_code.trim() !== '' &&
         this.editedItem.student_id.trim() !== '' &&
         this.editedItem.access_no.trim() !== '' 
       );
@@ -493,7 +530,7 @@ fetchStudentInfo(studentId) {
           borrow_id: '',
           student_name: '',
           student_lrn: '',
-          book_title: '',
+          book_code: '',
           borrow_date: '',
           return_duedate: '',
           status: '',
@@ -520,7 +557,7 @@ fetchStudentInfo(studentId) {
           borrow_id: '',
           student_name: '',
           student_lrn: '',
-          book_title: '',
+          book_code: '',
           borrow_date: '',
           return_duedate: '',
           status: '',
@@ -538,6 +575,9 @@ fetchStudentInfo(studentId) {
 
 .book-info-item, .student-info-item {
   margin-top: 9px; 
+}
+.v-chip{
+  margin-left: -4%;
 }
 
 .v-card-title {

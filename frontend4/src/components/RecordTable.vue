@@ -48,7 +48,9 @@
           <td :class="{'red-text': item.borrow_status === 4}">
             {{ item.borrow_status === 4 ? 'Lost' : formatDate(item.return_date) }}
           </td>
-          <td :class="{'red-text': item.borrow_status === 3 | item.borrow_status == 4, 'green-text': item.borrow_status === 2 }">{{ availableStatus[item.borrow_status] }}</td>
+          <td>
+              <v-chip :color="getStatusColor(item.borrow_status)" dark>{{ availableStatus[item.borrow_status] }}</v-chip>
+          </td>
         </tr>
       </template>
     </v-data-table>
@@ -168,6 +170,34 @@ export default {
         console.error('Error fetching data:', error);
       }
     },
+    getStatusColor(status) {
+          // Ensure status is within the bounds of availableStatus
+          if (status < 0 || status >= this.availableStatus.length) {
+            return 'blue'; // Default color for unknown status
+          }
+
+          // change the status color
+          switch(status) {
+            case 0:
+              return 'blue';  // // Pending
+            case 1:
+              return 'red'; // Overdue
+            case 2:
+              return 'green';  // Returned
+            case 3:
+              return 'red'; // Damage
+            case 4:
+              return 'red'; // Lost
+            case 5:
+              return 'red'; //  // Returned with Damage
+            case 6:
+              return 'red'; //  // Lost Payment
+            case 7:
+              return 'red'; //  // Overdue Pay
+            default:
+              return 'grey';   // Default color for unknown status
+          }
+        },
     formatDate(dateString) {
       const options = {
         month: 'long',  

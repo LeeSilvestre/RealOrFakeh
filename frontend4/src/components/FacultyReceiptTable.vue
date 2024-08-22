@@ -83,7 +83,9 @@
           <td>{{ formatDate2(item.borrowed_date) }}</td>
           <td>{{ formatDate(item.return_duedate) }}</td>
           <td>₱ {{ item.total_fine }}</td>
-          <td :class="{'red-text': item.borrow_status == 5 || item.borrow_status == 6 || item.borrow_status == 7}">{{ availableStatus[item.borrow_status] }}</td>
+          <td>
+              <v-chip :color="getStatusColor(item.borrow_status)" dark>{{ availableStatus[item.borrow_status] }}</v-chip>
+          </td>
           <td>
             <button v-if="item.borrow_status !== 2" type="button" class="btn btn-success white-text" @click="returnConfirmation(item)" :disabled="loading">
               <span v-if="loading">Returning...</span>
@@ -199,6 +201,34 @@ export default {
           console.error('Error fetching book titles:', error);
         });
     },
+    getStatusColor(status) {
+          // Ensure status is within the bounds of availableStatus
+          if (status < 0 || status >= this.availableStatus.length) {
+            return 'blue'; // Default color for unknown status
+          }
+
+          // change the status color
+          switch(status) {
+            case 0:
+              return 'blue';  // // Pending
+            case 1:
+              return 'red'; // Overdue
+            case 2:
+              return 'green';  // Returned
+            case 3:
+              return 'red'; // Damage
+            case 4:
+              return 'red'; // Lost
+            case 5:
+              return 'red'; //  // Returned with Damage
+            case 6:
+              return 'red'; //  // Lost Payment
+            case 7:
+              return 'red'; //  // Overdue Pay
+            default:
+              return 'grey';   // Default color for unknown status
+          }
+        },
     formatDate2(dateString) {
         const options = {
           month: 'long',  
