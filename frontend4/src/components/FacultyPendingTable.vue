@@ -28,38 +28,79 @@
               <v-btn class="mb-2 rounded-l" color="primary" dark v-bind="props" prepend-icon="mdi-plus">Add Record</v-btn>
             </template>
 
-            <v-card>
-              <v-card-title class="text-h5">{{ formTitle }}</v-card-title>
-              <v-card-text>
-                <v-form @submit.prevent="save">
-                  <v-select
-                    v-model="selectedCategory"
-                    :items="categNames"
-                    item-text="categ_name"
-                    item-value="categ_name"
-                    label="Category"
-                    class="mr-4"
-                  ></v-select>
-                  <v-select
-                    v-model="editedItem.book_title"
-                    :items="filteredBookTitles"
-                    item-text="book_title"
-                    item-value="book_title"
-                    label="Book Title"
-                    :error-messages="getErrorMessage('book_title')"
-                  ></v-select>
-                  <v-text-field v-model="editedItem.id" label="Faculty ID" :error-messages="getErrorMessage('id')"></v-text-field>
-                  <v-text-field v-model="editedItem.access_no" label="Book Code" :error-messages="getErrorMessage('access_no')"></v-text-field>
-                  <v-text-field v-model="editedItem.return_duedate" type="date" label="Return Due Date" :error-messages="getErrorMessage('return_duedate')" :min="todayDate"></v-text-field>
-                </v-form>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn class="button button-save" @click="showConfirmation">Add Record</v-btn>
-                <v-btn class="button button-cancel" @click="close">Cancel</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
+          <v-card>
+      <v-card-title class="text-h5">{{ formTitle }}</v-card-title>
+      <v-card-text>
+      <v-form @submit.prevent="showConfirmation">
+      <!-- Autocomplete for Book Code -->
+      <v-autocomplete
+        v-model="editedItem.book_code"
+        :items="bookList.map(book => book.book_code)"
+        item-text="book_code"
+        label="Book Code"
+        :search-input.sync="search"
+        autocomplete="off"
+        :error-messages="getErrorMessage('book_code')"
+        @input="fetchBookInfo"
+      ></v-autocomplete>
+      
+      <!-- Display Book Information -->
+      <v-card v-if="selectedBook" class="book-info-card mb-4">
+        <v-card-title  style="padding: 0;">Book Information</v-card-title>
+        <v-card-text>
+          <div class="book-info-item">
+            <strong>Title:</strong> {{ selectedBook.title }}
+          </div>
+          <div class="book-info-item">
+            <strong>Author:</strong> {{ selectedBook.author }}
+          </div>
+          <div class="book-info-item">
+            <strong>Publisher:</strong> {{ selectedBook.publisher }}
+          </div>
+        </v-card-text>
+      </v-card>
+
+      <!-- Autocomplete for Faculty ID -->
+      <v-autocomplete
+        v-model="editedItem.faculty_id"
+        :items="facultyList.map(faculty => faculty.faculty_id)"
+        item-text="faculty_id"
+        label="Faculty ID"
+        :search-input.sync="search"
+        autocomplete="off"
+        :error-messages="getErrorMessage('faculty_id')"
+         @input="fetchFacultyInfo"
+      ></v-autocomplete>
+      
+      <!-- Display Faculty Information -->
+      <v-card v-if="selectedFaculty" class="faculty-info-card mb-4">
+        <v-card-title style="padding: 0;">Faculty Information</v-card-title>
+        <v-card-text>
+          <div class="faculty-info-item">
+            <strong>Name:</strong> {{ selectedFaculty.name }}
+          </div>
+          <div class="faculty-info-item">
+            <strong>Email:</strong> {{ selectedFaculty.email }}
+          </div>
+        </v-card-text>
+      </v-card>
+
+              <v-text-field
+                v-model="editedItem.return_duedate"
+                type="date"
+                label="Return Due Date"
+                :error-messages="getErrorMessage('return_duedate')"
+                :min="todayDate"
+              ></v-text-field>
+            </v-form>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn class="button button-save" @click="showConfirmation">Add Record</v-btn>
+            <v-btn class="button button-cancel" @click="close">Cancel</v-btn>
+          </v-card-actions>
+          </v-card>
+      </v-dialog>
 
           <v-dialog v-model="dialogConfirmation" max-width="500px">
             <v-card>
@@ -159,6 +200,8 @@ export default {
       dialogConfirmation: false, 
       dialogConfirmation2: false, 
       editedItem: {
+          faculty_id: '',
+          book_code: '',
           book_title: '',
           id: '',
           access_no: '',
@@ -167,6 +210,16 @@ export default {
           access_no: '',
           return_duedate: '',
       },
+      bookList: [
+        { book_code: "ABC123", title: "The Great Book", author: "John Smith", publisher: "Book Publishers" },
+        { book_code: "XYZ456", title: "Another Book", author: "Jane Doe", publisher: "Other Publishers" },
+      ],
+      selectedBook: null,
+      facultyList: [
+        { faculty_id: "12345", name: "John Doe", email: "johndoe@example.com" },
+        { faculty_id: "67890", name: "Jane Smith", email: "janesmith@example.com" },
+      ],
+      selectedFaculty: null,
       selected: [],
       fieldErrors: {
         book_title: false,
@@ -179,6 +232,14 @@ export default {
       categories: [],
       category: [],
     };
+  },
+  watch: {
+    'editedItem.faculty_id': function(newId) {
+      this.fetchFacultyInfo(newId);
+    },
+    'editedItem.book_code': function(newCode) {
+      this.fetchBookInfo(newCode);
+    }
   },
   mounted() {
     this.fetchData();
@@ -321,6 +382,26 @@ export default {
       Swal.fire('Error', 'Error fetching borrow status: ' + error.message, 'error');
     });
 },
+
+    fetchBookInfo(bookCode) {
+      // Find the selected book by code
+      if (bookCode) {
+        this.selectedBook = this.bookList.find(book => book.book_code === bookCode);
+      } else {
+        this.selectedBook = null; 
+      }
+    },
+    fetchFacultyInfo(facultyId) {
+    // Find the selected faculty by ID
+    if (facultyId) {
+      this.selectedFaculty = this.facultyList.find(faculty => faculty.faculty_id === facultyId);
+    } else {
+      this.selectedFaculty = null; 
+    }
+  },
+  clearFacultyInfo() {
+    this.selectedFaculty = null; 
+  },
     showConfirmation() {
       this.fieldErrors = {
         book_title: this.editedItem.book_title.trim() === '',
@@ -446,6 +527,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.book-info-card, .faculty-info-card {
+  margin-bottom: 16px;
+}
+
+.book-info-item, .faculty-info-item {
+  margin-top: 9px; 
+}
+
 .v-card-title {
   font-family: 'Roboto', sans-serif;
   font-size: 30px !important; /* Force the font size */
